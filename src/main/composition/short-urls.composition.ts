@@ -4,13 +4,15 @@ import { CreateShortUrlUseCase } from "../../application/useCases/shortUrls/crea
 import { GetOriginalUrlByShortCodeUseCase } from "../../application/useCases/shortUrls/get-original-url-by-short-code.use-case";
 import { ShortUrlsRepository } from "../../infra/repositories/short-urls.repository";
 import { ShortCodeGenerator } from "../../infra/generators/short-code.generator";
+import { ShortUrlRedisCache } from "../../infra/cache/short-url-cache.redis";
 
 export function makeShortUrlsController(
   prisma: PrismaClient,
 ): ShortUrlsController {
   const shortUrlRepository = new ShortUrlsRepository(prisma);
+  const shortUrlCache = new ShortUrlRedisCache();
   return new ShortUrlsController(
     new CreateShortUrlUseCase(shortUrlRepository, new ShortCodeGenerator()),
-    new GetOriginalUrlByShortCodeUseCase(shortUrlRepository),
+    new GetOriginalUrlByShortCodeUseCase(shortUrlRepository, shortUrlCache),
   );
 }

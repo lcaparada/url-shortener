@@ -1,6 +1,6 @@
 import { CreateShortUrlUseCase } from "../create-short-url.use-case";
-import { ShortUrlRepositoryInterface } from "../../../../domain/repositories/short-url.repository.interface";
 import { ShortCodeGeneratorInterface } from "../../../../domain/generators/short-code-generator.interface";
+import { ShortUrlRepositoryInterface } from "../../../../domain/repositories/short-url.repository.interface";
 
 function makeRepositoryMock(): jest.Mocked<ShortUrlRepositoryInterface> {
   return {
