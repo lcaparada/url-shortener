@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "dev:load-test": "RATE_LIMIT_MAX=0 tsx watch src/index.ts",
     "test": "jest",
+    "load-test": "k6 run scripts/load-test.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",

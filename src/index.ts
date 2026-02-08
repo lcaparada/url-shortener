@@ -49,11 +49,16 @@ const bootstrap = () => {
   });
   app.log.info("Swagger UI registered");
 
-  app.register(rateLimit, {
-    max: 100,
-    timeWindow: "1 minute",
-  });
-  app.log.info("Rate limit registered");
+  const rateLimitMax = parseInt(process.env.RATE_LIMIT_MAX ?? "100", 10);
+  if (rateLimitMax > 0) {
+    app.register(rateLimit, {
+      max: rateLimitMax,
+      timeWindow: "1 minute",
+    });
+    app.log.info(`Rate limit registered (max ${rateLimitMax}/min)`);
+  } else {
+    app.log.info("Rate limit disabled (RATE_LIMIT_MAX=0)");
+  }
 
   app.setErrorHandler(errorHandler);
 
