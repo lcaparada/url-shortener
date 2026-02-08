@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { ShortUrlsRepository } from "../short-urls.repository";
 import { ShortUrlEntity } from "../../../domain/entities/short-urls.entity";
 import { DatabaseError } from "../../../domain/errors/database.error";
+import { NotFoundError } from "../../../domain/errors/not-found.error";
 
 type ShortUrlRow = {
   id: string;
@@ -96,18 +97,17 @@ describe("ShortUrlsRepository", () => {
       expect(result).toBe("https://example.com/long");
     });
 
-    it("should throw DatabaseError when shortUrl does not exist", async () => {
+    it("should throw NotFoundError when shortUrl does not exist", async () => {
       prismaMock.shortUrl.findUnique.mockResolvedValue(null);
       const repo = new ShortUrlsRepository(prisma);
+      expect.assertions(2);
 
-      await expect(
-        repo.getOriginalUrlByShortCode("nonexistent"),
-      ).rejects.toThrow(DatabaseError);
-      await expect(
-        repo.getOriginalUrlByShortCode("nonexistent"),
-      ).rejects.toThrow(
-        "Failed to get original URL by short code: Original URL not found",
-      );
+      try {
+        await repo.getOriginalUrlByShortCode("nonexistent");
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundError);
+        expect((error as Error).message).toBe("Original URL not found");
+      }
     });
   });
 

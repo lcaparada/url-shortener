@@ -98,12 +98,19 @@ describe("ShortUrl", () => {
   });
 
   describe("toJSON", () => {
-    it("should return object with id", () => {
-      const shortUrl = new ShortUrlEntity(makeProps(), "json-id");
+    it("should return object with id, originalUrl, shortCode, createdAt and clicks", () => {
+      const props = makeProps({ originalUrl: "https://foo.com", shortCode: "xyz" });
+      const shortUrl = new ShortUrlEntity(props, "json-id");
 
       const json = shortUrl.toJSON();
 
-      expect(json).toHaveProperty("id", "json-id");
+      expect(json).toEqual({
+        id: "json-id",
+        originalUrl: "https://foo.com",
+        shortCode: "xyz",
+        createdAt: props.createdAt,
+        clicks: props.clicks,
+      });
     });
   });
 });

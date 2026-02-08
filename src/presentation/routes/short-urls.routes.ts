@@ -1,26 +1,16 @@
 import { FastifyInstance } from "fastify";
-import { ShortUrlsController } from "../controllers/short-urls.controller";
-import { CreateShortUrlUseCase } from "../../application/useCases/shortUrls/create-short-url.use-case";
-import { ShortUrlsRepository } from "../../infra/repositories/short-urls.repository";
-import { ShortCodeGenerator } from "../../infra/generators/short-code.generator";
-import { GetOriginalUrlByShortCodeUseCase } from "../../application/useCases/shortUrls/get-original-url-by-short-code.use-case";
 import { PrismaClient } from "@prisma/client";
 import z from "zod";
+import { makeShortUrlsController } from "../../main/composition/short-urls.composition";
 
 export const shortUrlsRoutes = (app: FastifyInstance, prisma: PrismaClient) => {
-  const shortUrlsController = new ShortUrlsController(
-    new CreateShortUrlUseCase(
-      new ShortUrlsRepository(prisma),
-      new ShortCodeGenerator(),
-    ),
-    new GetOriginalUrlByShortCodeUseCase(new ShortUrlsRepository(prisma)),
-  );
+  const shortUrlsController = makeShortUrlsController(prisma);
 
   app.post(
     "/short-urls",
     {
       schema: {
-        body: z.object({ originalUrl: z.string() }),
+        body: z.object({ originalUrl: z.url() }),
         tags: ["short-urls"],
         summary: "Create short URL",
         responses: {

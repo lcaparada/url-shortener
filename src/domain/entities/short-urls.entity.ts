@@ -27,4 +27,14 @@ export class ShortUrlEntity extends Entity<ShortUrlProps> {
   get clicks() {
     return this.props.clicks;
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      originalUrl: this.originalUrl,
+      shortCode: this.shortCode,
+      createdAt: this.createdAt,
+      clicks: this.clicks,
+    };
+  }
 }

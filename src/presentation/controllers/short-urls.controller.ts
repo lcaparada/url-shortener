@@ -24,6 +24,15 @@ export class ShortUrlsController {
     const { shortCode } = req.params;
     const originalUrl =
       await this.getOriginalUrlByShortCodeUseCase.execute(shortCode);
-    res.status(302).redirect(originalUrl);
+    const isSafeRedirect =
+      originalUrl.startsWith("http://") || originalUrl.startsWith("https://");
+    if (!isSafeRedirect) {
+      return res.status(400).send({
+        statusCode: 400,
+        error: "Bad Request",
+        message: "Invalid redirect URL",
+      });
+    }
+    return res.status(302).redirect(originalUrl);
   }
 }

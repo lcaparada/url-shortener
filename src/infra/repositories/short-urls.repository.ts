@@ -35,6 +35,7 @@ export class ShortUrlsRepository implements ShortUrlRepositoryInterface {
       }
       return url.originalUrl;
     } catch (error) {
+      if (error instanceof NotFoundError) throw error;
       throw new DatabaseError(
         `Failed to get original URL by short code: ${error instanceof Error ? error.message : "Unknown error"}`,
       );

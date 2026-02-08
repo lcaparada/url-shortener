@@ -2,6 +2,7 @@ import fastify from "fastify";
 import dotenv from "dotenv";
 import { prisma } from "./infra/database/prisma";
 import { registerRoutes } from "./presentation/routes";
+import { errorHandler } from "./presentation/errors/error-handler";
 import {
   jsonSchemaTransform,
   serializerCompiler,
@@ -10,6 +11,7 @@ import {
 } from "fastify-type-provider-zod";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
+import rateLimit from "@fastify/rate-limit";
 
 dotenv.config();
 
@@ -47,6 +49,14 @@ const bootstrap = () => {
   });
   app.log.info("Swagger UI registered");
 
+  app.register(rateLimit, {
+    max: 100,
+    timeWindow: "1 minute",
+  });
+  app.log.info("Rate limit registered");
+
+  app.setErrorHandler(errorHandler);
+
   registerRoutes(app, prisma);
   app.log.info("Routes registered");
   return app;
@@ -54,9 +64,10 @@ const bootstrap = () => {
 
 const start = async () => {
   const app = bootstrap();
+  const port = parseInt(process.env.PORT ?? "3000", 10);
   try {
-    await app.listen({ port: parseInt(process.env.PORT ?? "3000") });
-    app.log.info(`Server is running on port ${process.env.PORT}`);
+    const address = await app.listen({ port, host: "0.0.0.0" });
+    app.log.info(`Server is running at ${address}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
